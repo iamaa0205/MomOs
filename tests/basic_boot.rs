@@ -5,28 +5,26 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use momOS::println;
 
-#[no_mangle]
+#[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
-    println!("Hello World{}", "!");
-
-    #[cfg(test)]
     test_main();
 
     loop {}
 }
 
-/// This function is called on panic.
-#[cfg(not(test))]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
-    loop {}
+fn test_runner(tests: &[&dyn Fn()]) {
+    unimplemented!();
 }
 
-#[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     momOS::test_panic_handler(info)
+}
+
+use momOS::println;
+
+#[test_case]
+fn test_println() {
+    println!("test_println output");
 }
