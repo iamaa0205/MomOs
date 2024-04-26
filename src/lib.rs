@@ -7,6 +7,7 @@
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
+
 pub enum QemuExitCode {
     Success = 0x10,
     Failed = 0x11,
@@ -25,7 +26,8 @@ pub mod vga_buffer;
 pub mod interrupts;
 pub mod gdt;
 pub mod memory;
-
+pub mod allocator;
+extern crate alloc;
 use core::panic::PanicInfo;
 
 pub trait Testable {
