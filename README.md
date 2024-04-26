@@ -19,6 +19,12 @@ This project is developed by:
 
 ## Building
 
+### Installing Rustup
+Install rustup by running the following command
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
 This project requires a nightly version of Rust because it uses some unstable features. At least nightly _2020-07-15_ is required for building. You might need to run `rustup update nightly --force` to update to the latest nightly even if some components such as `rustfmt` are missing it.
 
 You can build the project by running:
