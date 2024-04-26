@@ -9,6 +9,9 @@ use core::panic::PanicInfo;
 use momOS::println;
 use bootloader::{BootInfo, entry_point};
 use alloc::{boxed::Box, vec, vec::Vec, rc::Rc};
+use momOS::task::{Task, simple_executor::SimpleExecutor};
+use momOS::task::keyboard;
+use momOS::task::executor::Executor; 
 extern crate alloc;
 //use alloc::boxed::Box;
 
@@ -49,6 +52,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // write the string `New!` to the screen through the new mapping
     //let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
     //unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e)};
+    let mut executor = Executor::new();
+    executor.spawn(Task::new(example_task()));
+    executor.spawn(Task::new(keyboard::print_keypresses()));
+    executor.run();
 
     #[cfg(test)]
     test_main();
@@ -69,4 +76,13 @@ fn panic(info: &PanicInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     momOS::test_panic_handler(info)
+}
+
+async fn async_number() -> u32 {
+    42
+}
+
+async fn example_task() {
+    let number = async_number().await;
+    println!("async number: {}", number);
 }
