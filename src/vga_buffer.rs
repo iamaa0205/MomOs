@@ -31,7 +31,8 @@ pub enum Color {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(C)]
+#[repr(C)] //Since the field ordering in default structs is undefined in Rust, we need the repr(C) attribute. It guarantees that the struct’s fields are laid out exactly like in a C struct and thus guarantees the correct field ordering.
+
 struct ScreenChar {
     ascii_character: u8,
     color_code: ColorCode,
@@ -45,11 +46,12 @@ use volatile::Volatile;
 struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
-
+//To provide a global writer that can be used as an interface from other 
+//modules without carrying a Writer instance around, we try to create a static WRITER:
 pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
-    buffer: &'static mut Buffer,
+    buffer: &'static mut Buffer, //The 'static lifetime specifies that the reference is valid for the whole program run time (which is true for the VGA text buffer).
 }
 
 impl Writer {
@@ -78,7 +80,10 @@ impl Writer {
         for byte in s.bytes() {
             match byte {
                 // printable ASCII byte or newline
-                0x20..=0x7e | b'\n' => self.write_byte(byte),
+                0x20..=0x7e | b'\n' => self.write_byte(byte), //he VGA text buffer only supports ASCII and 
+                //the additional bytes of code page 437. Rust strings are UTF-8 by 
+                //default, so they might contain bytes that are not supported by the 
+                //VGA text buffer. We use a match to differentiate printable ASCII bytes (a newline or anything in between a space character and a ~ character) and unprintable bytes
                 // not part of printable ASCII range
                 _ => self.write_byte(0xfe),
             }
@@ -118,6 +123,8 @@ impl fmt::Write for Writer {
     }
 }
 
+//The one-time initialization of statics with non-const functions is a common problem in Rust. Fortunately, there already exists a good solution in a crate named lazy_static.
+//Instead of computing its value at compile time, the static lazily initializes itself when accessed for the first time. Thus, the initialization happens at runtime, so arbitrarily complex initialization code is possible.
 use spin::Mutex;
 use lazy_static::lazy_static;
 

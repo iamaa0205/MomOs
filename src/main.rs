@@ -1,8 +1,8 @@
-#![no_std]
-#![no_main]
+#![no_std]  //disable the automatic inclusion of the standard library
+#![no_main]  //o tell the Rust compiler that we don’t want to use the normal entry point chain of C environment
 #![feature(custom_test_frameworks)]
 #![test_runner(momOS::test_runner)]
-#![reexport_test_harness_main = "test_main"]
+#![reexport_test_harness_main = "test_main"] //The custom test frameworks feature generates a main function that calls test_runner, but this function is ignored because we use the #[no_main] attribute and provide our own entry point.To fix this, we first need to change the name of the generated function to something different than main through the reexport_test_harness_main attribute.
 #![feature(const_mut_refs)]
 
 use core::panic::PanicInfo;
@@ -74,6 +74,7 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[cfg(test)]
 #[panic_handler]
+//The PanicInfo parameter contains the file and line where the panic happened and the optional panic message.
 fn panic(info: &PanicInfo) -> ! {
     momOS::test_panic_handler(info)
 }
@@ -86,3 +87,6 @@ async fn example_task() {
     let number = async_number().await;
     println!("async number: {}", number);
 }
+
+
+//json file is created to solve target problem by writing our own target

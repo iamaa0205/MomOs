@@ -38,3 +38,5 @@ macro_rules! serial_println {
     ($fmt:expr, $($arg:tt)*) => ($crate::serial_print!(
         concat!($fmt, "\n"), $($arg)*));
 }
+
+// for printing to console we used port mapped I/O and lazy writes
